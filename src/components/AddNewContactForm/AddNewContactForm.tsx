@@ -2,7 +2,7 @@ const AddNewContactForm = () => {
   return (
     <div className="container mb-5">
       <h1 className="my-4">Add new contact</h1>
-      <div className="d-flex justify-content-center">
+      <div className="d-flex justify-content-lg-start">
         <form className="p-4 w-50 border rounded shadow-lg bg-light ">
           <div className="mb-3">
             <label htmlFor="name" className="form-label">
