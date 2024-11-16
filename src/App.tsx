@@ -7,8 +7,8 @@ const App = () => {
   return (
     <>
       <Layout>
-        <TheListOfContacts />
         <Routes>
+          <Route path="/" element={<TheListOfContacts />} />
           <Route path="/addNewContact" element={<AddNewContactForm />} />
         </Routes>
       </Layout>

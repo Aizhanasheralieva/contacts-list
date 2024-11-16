@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../app/hooks.ts";
-import { selectAddContactToTheListLoading } from "../../store/slices/contactsListSlice.ts";
-import { addNewContactToTheList } from "../../store/thunks/ContactsList/ContactsList.ts";
-import ButtonSpinner from "../ButtonSpinner/ButtonSpinner.tsx";
+import React, {useState} from "react";
+import {useAppDispatch, useAppSelector} from "../../app/hooks.ts";
+import {selectAddContactToTheListLoading} from "../../store/slices/contactsListSlice.ts";
+import {addNewContactToTheList} from "../../store/thunks/ContactsList/ContactsList.ts";
+import ButtonSpinner from "../UI/ButtonSpinner/ButtonSpinner.tsx";
+import {useNavigate} from "react-router-dom";
 
 const initialStateForForm = {
   name: "",
@@ -16,6 +17,7 @@ const AddNewContactForm = () => {
   const contactsAddLoading = useAppSelector(selectAddContactToTheListLoading);
   const [contacts, setContacts] = useState<IContactsForm>(initialStateForForm);
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const onChangeContactsInputInfo = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -34,6 +36,7 @@ const AddNewContactForm = () => {
   const onSubmitContacts = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     dispatch(addNewContactToTheList({ ...contacts }));
+    navigate("/");
   };
 
   return (
@@ -104,23 +107,29 @@ const AddNewContactForm = () => {
             <label htmlFor="photoPreview" className="form-label">
               Photo preview
             </label>
-            <img
-              src=""
-              alt="Photo preview"
-              className="rounded"
-              style={{ maxWidth: "100px" }}
-            />
+            {contacts.photo && (
+                <img
+                    src={contacts.photo}
+                    alt="Photo preview"
+                    className="rounded"
+                    style={{maxWidth: "100px"}}
+                />
+            )}
           </div>
           <div className="d-flex justify-content-left">
             <button
-              disabled={contactsAddLoading}
-              type="submit"
+                disabled={contactsAddLoading}
+                type="submit"
               className="btn btn-primary me-3"
             >
               Save
             </button>
             {contactsAddLoading ? <ButtonSpinner /> : null}
-            <button type="submit" className="btn btn-primary">
+            <button
+                type="submit"
+                className="btn btn-primary"
+              onClick={() => navigate("/")}
+            >
               Back to contacts
             </button>
           </div>
