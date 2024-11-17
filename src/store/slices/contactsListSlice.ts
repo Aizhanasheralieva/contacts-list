@@ -1,6 +1,7 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {addNewContactToTheList, fetchAllContactsFromTheFirebase} from "../thunks/ContactsList/ContactsList.ts";
 import {RootState} from "../../app/store.ts";
+import {IContacts} from "../../types";
 
 interface contactsListState {
   contacts: IContacts[];

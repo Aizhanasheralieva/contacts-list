@@ -4,13 +4,13 @@ import {selectAddContactToTheListLoading} from "../../store/slices/contactsListS
 import {addNewContactToTheList} from "../../store/thunks/ContactsList/ContactsList.ts";
 import ButtonSpinner from "../UI/ButtonSpinner/ButtonSpinner.tsx";
 import {useNavigate} from "react-router-dom";
+import {IContactsForm} from "../../types";
 
 const initialStateForForm = {
   name: "",
   email: "",
   phone: "",
   photo: "",
-  // preview: "",
 };
 
 const AddNewContactForm = () => {
@@ -31,11 +31,14 @@ const AddNewContactForm = () => {
     });
   };
 
-  console.log(contacts);
+  // const fetchContacts = useCallback(async () => {
+  //   await dispatch(fetchAllContactsFromTheFirebase());
+  // }, [dispatch]);
 
   const onSubmitContacts = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    dispatch(addNewContactToTheList({ ...contacts }));
+    await dispatch(addNewContactToTheList({ ...contacts }));
+    // await fetchContacts();
     navigate("/");
   };
 

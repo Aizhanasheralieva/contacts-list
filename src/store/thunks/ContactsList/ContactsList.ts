@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axiosAPI from "../../../axiosAPI.ts";
+import {IContacts, IContactsAPI, IContactsForm} from "../../../types";
 
 export const addNewContactToTheList = createAsyncThunk<void, IContactsForm>(
   "contactsList/addNewContactToTheList",
