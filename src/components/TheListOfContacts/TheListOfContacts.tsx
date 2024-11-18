@@ -1,68 +1,98 @@
-import {useAppDispatch, useAppSelector} from "../../app/hooks.ts";
-import {selectAllContactsList, selectFetchContactToTheListLoading} from "../../store/slices/contactsListSlice.ts";
+import { useAppDispatch, useAppSelector } from "../../app/hooks.ts";
+import {
+  selectAllContactsList,
+  selectDeleteContactLoading,
+  selectFetchContactToTheListLoading,
+} from "../../store/slices/contactsListSlice.ts";
 import ButtonSpinner from "../UI/ButtonSpinner/ButtonSpinner.tsx";
-import {useCallback, useEffect, useState} from "react";
-import {fetchAllContactsFromTheFirebase} from "../../store/thunks/ContactsList/ContactsList.ts";
-import {IContacts} from "../../types";
+import { useCallback, useEffect, useState } from "react";
+import { fetchAllContactsFromTheFirebase } from "../../store/thunks/ContactsList/ContactsList.ts";
+import { IContacts } from "../../types";
 import ContactDetailsModal from "../UI/ContactDetailsModal/ContactDetailsModal.tsx";
+import { deleteContactById } from "../../store/thunks/ContactsList/ContactsList.ts";
 
 const TheListOfContacts = () => {
   const dispatch = useAppDispatch();
   const allContactsList = useAppSelector(selectAllContactsList);
-  const contactsFetchLoading = useAppSelector(selectFetchContactToTheListLoading);
-  const [isContactDetailsModalOpen, setIsContactDetailsModalOpen] = useState(false);
-  const [chosenContactFromTheList, setChosenContactFromTheList] = useState<IContacts | null>(null);
+  const contactsFetchLoading = useAppSelector(
+    selectFetchContactToTheListLoading,
+  );
+  const contactsDeleteLoading = useAppSelector(selectDeleteContactLoading);
+  const [isContactDetailsModalOpen, setIsContactDetailsModalOpen] =
+    useState(false);
+  const [chosenContactFromTheList, setChosenContactFromTheList] =
+    useState<IContacts | null>(null);
 
   const fetchContacts = useCallback(async () => {
-      await dispatch(fetchAllContactsFromTheFirebase());
+    await dispatch(fetchAllContactsFromTheFirebase());
   }, [dispatch]);
 
+  const controlDeleteContactFromTheList = async (id: string) => {
+    if (id) {
+      await dispatch(deleteContactById(id));
+      await fetchContacts();
+      setIsContactDetailsModalOpen(false);
+    }
+  };
+
   useEffect(() => {
-   void fetchContacts();
+    void fetchContacts();
   }, [fetchContacts]);
 
   const openContactDetailsModal = (contactDetails: IContacts) => {
-      setChosenContactFromTheList(contactDetails);
-      setIsContactDetailsModalOpen(true);
+    setChosenContactFromTheList(contactDetails);
+    setIsContactDetailsModalOpen(true);
   };
 
   const closeContactDetailsModal = () => {
-      setIsContactDetailsModalOpen(false);
-      setChosenContactFromTheList(null);
+    setIsContactDetailsModalOpen(false);
+    setChosenContactFromTheList(null);
   };
   return (
-      <>
-        <div>
-          {contactsFetchLoading ? <ButtonSpinner/> :
+    <>
+      <div>
+        {contactsFetchLoading || contactsDeleteLoading ? (
+          <ButtonSpinner />
+        ) : (
+          <>
+            {allContactsList.length === 0 ? (
+              <p>There are any contacts yet added!</p>
+            ) : (
               <>
-                {allContactsList.length === 0 ? <p>There are any contacts yet added!</p> :
-                    <>
-                      {allContactsList.map((contact) => (
-                          <div
-                              key={contact.id}
-                              onClick={() => openContactDetailsModal(contact)}
-                              style={{cursor: "pointer"}}
-                              className="card p-4 mb-3 w-50 d-flex flex-column align-items-lg-start">
-                            <div className="card-body d-flex justify-content-center align-items-center ">
-                              {contact.photo && <img src={contact.photo} alt="contact" className="card-image me-4"
-                                 style={{maxWidth: "100px"}}/>}
-                              <h5 className="card-title">{contact.name}</h5>
-                            </div>
-                          </div>
-                      ))}
-                    </>
-                }
-                  {isContactDetailsModalOpen && (
-                      <ContactDetailsModal
-                          show={isContactDetailsModalOpen}
-                          contactDetails={chosenContactFromTheList}
-                          closeModal={closeContactDetailsModal}/>
-                  )}
-
+                {allContactsList.map((contact) => (
+                  <div
+                    key={contact.id}
+                    onClick={() => openContactDetailsModal(contact)}
+                    style={{ cursor: "pointer" }}
+                    className="card p-4 mb-3 w-50 d-flex flex-column align-items-lg-start"
+                  >
+                    <div className="card-body d-flex justify-content-center align-items-center ">
+                      {contact.photo && (
+                        <img
+                          src={contact.photo}
+                          alt="contact"
+                          className="card-image me-4"
+                          style={{ maxWidth: "100px" }}
+                        />
+                      )}
+                      <h5 className="card-title">{contact.name}</h5>
+                    </div>
+                  </div>
+                ))}
               </>
-          }
-        </div>
-      </>
+            )}
+            {isContactDetailsModalOpen && (
+              <ContactDetailsModal
+                show={isContactDetailsModalOpen}
+                contactDetails={chosenContactFromTheList}
+                closeModal={closeContactDetailsModal}
+                deleteContactFromTheList={controlDeleteContactFromTheList}
+              />
+            )}
+          </>
+        )}
+      </div>
+    </>
   );
 };
 

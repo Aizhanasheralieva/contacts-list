@@ -10,6 +10,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<TheListOfContacts />} />
           <Route path="/addNewContact" element={<AddNewContactForm />} />
+          <Route path="/edit/:id" element={<AddNewContactForm />} />
         </Routes>
       </Layout>
     </>

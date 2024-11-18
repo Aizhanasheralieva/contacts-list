@@ -1,11 +1,21 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useAppDispatch, useAppSelector} from "../../app/hooks.ts";
-import {selectAddContactToTheListLoading} from "../../store/slices/contactsListSlice.ts";
-import {addNewContactToTheList} from "../../store/thunks/ContactsList/ContactsList.ts";
+import {
+  selectAddContactToTheListLoading,
+  selectFetchContactToTheListLoading
+} from "../../store/slices/contactsListSlice.ts";
+import {
+  addNewContactToTheList,
+  receiveOneContactById,
+  editContactInfo
+} from "../../store/thunks/ContactsList/ContactsList.ts";
 import ButtonSpinner from "../UI/ButtonSpinner/ButtonSpinner.tsx";
-import {useNavigate} from "react-router-dom";
-import {IContactsForm} from "../../types";
+import {useNavigate, useParams} from "react-router-dom";
+import { IContactsForm} from "../../types";
 
+interface Props {
+  contactToEdit?: IContactsForm;
+}
 const initialStateForForm = {
   name: "",
   email: "",
@@ -13,11 +23,21 @@ const initialStateForForm = {
   photo: "",
 };
 
-const AddNewContactForm = () => {
+const AddNewContactForm: React.FC<Props> = ({ contactToEdit }) => {
   const contactsAddLoading = useAppSelector(selectAddContactToTheListLoading);
+  const contactsFetchLoading = useAppSelector(selectFetchContactToTheListLoading);
   const [contacts, setContacts] = useState<IContactsForm>(initialStateForForm);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const {id} = useParams<{id: string}>();
+
+  useEffect(() => {
+    if (contactToEdit) {
+      setContacts(contactToEdit);
+    } else if (id) {
+      dispatch(receiveOneContactById(id));
+    }
+  }, [contactToEdit]);
 
   const onChangeContactsInputInfo = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -31,20 +51,20 @@ const AddNewContactForm = () => {
     });
   };
 
-  // const fetchContacts = useCallback(async () => {
-  //   await dispatch(fetchAllContactsFromTheFirebase());
-  // }, [dispatch]);
-
   const onSubmitContacts = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await dispatch(addNewContactToTheList({ ...contacts }));
-    // await fetchContacts();
+    if (contactToEdit) {
+      await dispatch(editContactInfo({ ...contacts, id: contactToEdit.id }));
+    } else {
+      await dispatch(addNewContactToTheList({ ...contacts }));
+    }
+
     navigate("/");
   };
 
   return (
     <div className="container mb-5">
-      <h1 className="my-4">Add new contact</h1>
+      <h1 className="my-4">{contactToEdit ? "Edit" : "Add New"} Contact</h1>
       <div className="d-flex justify-content-lg-start">
         <form
           onSubmit={onSubmitContacts}
@@ -111,26 +131,26 @@ const AddNewContactForm = () => {
               Photo preview
             </label>
             {contacts.photo && (
-                <img
-                    src={contacts.photo}
-                    alt="Photo preview"
-                    className="rounded"
-                    style={{maxWidth: "100px"}}
-                />
+              <img
+                src={contacts.photo}
+                alt="Photo preview"
+                className="rounded"
+                style={{ maxWidth: "100px" }}
+              />
             )}
           </div>
           <div className="d-flex justify-content-left">
             <button
-                disabled={contactsAddLoading}
-                type="submit"
+              disabled={contactsAddLoading}
+              type="submit"
               className="btn btn-primary me-3"
             >
               Save
             </button>
-            {contactsAddLoading ? <ButtonSpinner /> : null}
+            {contactsAddLoading || contactsFetchLoading ? <ButtonSpinner /> : null}
             <button
-                type="submit"
-                className="btn btn-primary"
+              type="submit"
+              className="btn btn-primary"
               onClick={() => navigate("/")}
             >
               Back to contacts
