@@ -34,7 +34,7 @@ const EditContact = () => {
     if (id && contact) {
       await dispatch(editContactInfo({contactId: id, contact}));
       navigate("/");
-      toast.success('Contact edited successfully');
+      // toast.success('Contact edited successfully');
     }
   };
 
